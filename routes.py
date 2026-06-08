@@ -25,9 +25,8 @@ from .storage import load_job, save_job
 
 bp = Blueprint("main", __name__)
 BRAND_LOGO_PATH = Path(
-    Path(__file__).parent / "static" / "images" / "happytree-logo.svg"
+    Path(__file__).parent / "static" / "images" / "happytree-logo.png"
 )
-
 
 @bp.get("/")
 def index():
@@ -43,7 +42,7 @@ def index():
 def brand_logo():
     if not BRAND_LOGO_PATH.exists():
         abort(404)
-    return send_file(BRAND_LOGO_PATH, mimetype="image/svg+xml", max_age=0)
+    return send_file(BRAND_LOGO_PATH, mimetype="image/png", max_age=0)
 
 
 @bp.post("/upload")
