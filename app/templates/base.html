@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}영어 변형문제 생성기{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('main.index') }}">
+      <img class="brand-logo" src="{{ url_for('main.brand_logo') }}" alt="">
+      <span>HAPPYTREE EXAM STUDIO</span>
+    </a>
+    <span class="header-note">고등학교 영어 모의고사 변형문제</span>
+  </header>
+
+  <main class="page-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

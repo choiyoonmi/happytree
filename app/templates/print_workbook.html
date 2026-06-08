@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ job.filename }} · 출판용 문제집</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/workbook-print.css') }}">
+</head>
+<body>
+  <nav class="print-toolbar screen-only">
+    <a href="{{ url_for('main.workspace', job_id=job.id) }}">편집 화면</a>
+    <div class="toolbar-group">
+      <button type="button" data-paper="letter" class="active">Letter</button>
+      <button type="button" data-paper="a4">A4</button>
+      <button type="button" class="print-action" onclick="window.print()">PDF 저장 / 인쇄</button>
+    </div>
+    <span>전체 {{ exam.questions|length }}문항</span>
+  </nav>
+
+  <main class="workbook">
+    {% set answer_mode = job.answer_mode|default('hidden') %}
+    <section class="cover">
+      <p class="cover-kicker">HIGH SCHOOL ENGLISH · STUDENT EDITION</p>
+      <h1>고등학교 영어<br>모의고사 변형문제</h1>
+      <p class="cover-subtitle">개념을 확인하고, 지문을 분석하고, 답을 완성하는 문제집</p>
+      <dl class="cover-meta">
+        <dt>EDITION</dt><dd>학생용 문제지</dd>
+        <dt>VOLUME</dt><dd>총 {{ exam.questions|length }}문항</dd>
+        <dt>NAME</dt><dd><span class="write-line"></span></dd>
+      </dl>
+      <p class="cover-note">지문을 읽고 각 문항의 지시에 따라 답하시오. 답은 문제에 제시된 형식에 맞게 작성합니다.</p>
+    </section>
+
+    {% set part_names = {
+      "PART1": ("Part 01", "어법 / 어휘 변형", "문맥과 문장 구조를 확인하고 가장 적절한 표현으로 고치시오."),
+      "PART2": ("Part 02", "문장 순서 / 삽입", "글의 논리적 흐름과 연결 표현을 근거로 순서와 위치를 판단하시오."),
+      "PART3": ("Part 03", "제목 / 주제 / 요약", "글의 핵심 내용과 필자의 의도를 정확히 파악하시오."),
+      "PART4": ("Part 04", "서술형", "핵심 어휘와 문장 구조를 활용해 완전한 답을 작성하시오.")
+    } %}
+
+    {% for part in exam.parts %}
+      {% set key = part|upper %}
+      {% set part_info = part_names[key] %}
+      <section class="part-section">
+        <header class="running-head">
+          <strong>고등학교 영어 모의고사 변형문제</strong>
+          <span>STUDENT WORKBOOK · {{ part_info[0]|upper }}</span>
+        </header>
+        <div class="part-heading">
+          <span class="part-no">{{ part_info[0] }}</span>
+          <div>
+            <h2>{{ part_info[1] }}</h2>
+            <p>{{ part_info[2] }}</p>
+          </div>
+        </div>
+
+        {% for question in exam.questions if question.part == key %}
+        <article class="question" id="q-{{ question.number }}">
+          <span class="q-number">{{ question.number }}</span>
+          <div class="q-content">
+            <div class="q-meta">
+              {% if question.passage_number %}
+              <span class="tag source">원문 {{ question.passage_number }}</span>
+              {% endif %}
+              <span class="tag">{{ question.type }}</span>
+            </div>
+            <p class="prompt">{{ question.prompt }}</p>
+            <div class="passage">{{ question.passage }}</div>
+            {% if question.options %}
+            <ol class="choice-list {% if question.options|map('length')|max < 85 %}two-column{% endif %}">
+              {% for option in question.options %}<li>{{ option }}</li>{% endfor %}
+            </ol>
+            {% endif %}
+            <div class="answer-area {% if key == 'PART4' %}lines-2{% endif %}"></div>
+            {% if answer_mode == 'inline' %}
+            <aside class="answer-box">
+              <strong>정답 {{ question.answer }}</strong>
+              {% if question.explanation %}<p>{{ question.explanation }}</p>{% endif %}
+            </aside>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </section>
+    {% endfor %}
+
+    {% if answer_mode == 'appendix' %}
+    <section class="answer-key-section">
+      <header class="running-head">
+        <strong>고등학교 영어 모의고사 변형문제</strong>
+        <span>ANSWER &amp; EXPLANATION</span>
+      </header>
+      <div class="answer-key-heading">
+        <p>ANSWER KEY</p>
+        <h2>정답 및 해설</h2>
+        <span>문항 번호를 확인한 뒤 정답과 해설을 검토하세요.</span>
+      </div>
+      <div class="answer-key-list">
+        {% for question in exam.questions %}
+        <article class="answer-key-item">
+          <span class="answer-number">{{ question.number }}</span>
+          <div>
+            <strong>{{ question.answer }}</strong>
+            {% if question.explanation %}<p>{{ question.explanation }}</p>{% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </main>
+
+  <script>
+    const paperButtons = document.querySelectorAll("[data-paper]");
+    paperButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        document.body.classList.toggle("paper-a4", button.dataset.paper === "a4");
+        paperButtons.forEach((item) => item.classList.toggle("active", item === button));
+      });
+    });
+  </script>
+</body>
+</html>
