@@ -31,7 +31,7 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   color: #fff;
   text-decoration: none;
   font-size: 14px;
@@ -40,9 +40,10 @@ body {
 }
 .brand-logo {
   display: block;
-  width: 62px;
-  height: 56px;
+  width: 86px;
+  height: 58px;
   object-fit: contain;
+  object-position: center;
   flex: 0 0 auto;
 }
 .header-note { color: #d8e2f2; font-size: 13px; }
